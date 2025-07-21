@@ -1,0 +1,25 @@
+{
+  "name": "nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "generate:proto": "buf generate ../../packages/proto --template buf.gen.yaml",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.6.1",
+    "@connectrpc/connect": "^2.0.2",
+    "@connectrpc/connect-web": "^2.0.2",
+    "nuxt": "^4.0.0",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.55.1",
+    "@bufbuild/protoc-gen-es": "^2.6.1"
+  }
+}

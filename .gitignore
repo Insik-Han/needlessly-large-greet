@@ -27,6 +27,9 @@ out/
 build
 dist
 
+# proto
+gen
+proto-gen
 
 # Debug
 npm-debug.log*

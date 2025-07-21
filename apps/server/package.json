@@ -1,0 +1,8 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "go run ./cmd/server/main.go",
+    "generate:proto": "buf generate ../../packages/proto --template buf.gen.yaml"
+  }
+}
