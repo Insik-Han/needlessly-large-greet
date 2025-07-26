@@ -1,0 +1,7 @@
+{
+  "name": "proto",
+  "private": true,
+  "scripts": {
+    "lint": "buf lint"
+  }
+}
