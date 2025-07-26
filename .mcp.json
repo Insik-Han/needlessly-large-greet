@@ -1,8 +1,4 @@
 {
-  "contextFileName": [
-    "CLAUDE.md",
-    "GEMINI.md"
-  ],
   "mcpServers": {
     "context7": {
       "args": [

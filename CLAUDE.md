@@ -2,63 +2,53 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Common Commands
+
+### Development
+- `pnpm dev` - Run all services in development mode (server + web apps)
+- `pnpm build` - Build all packages
+- `pnpm lint` - Run linting across all packages
+- `pnpm check-types` - Run TypeScript type checking
+
+### Protocol Buffer Generation
+- `pnpm generate:proto` - Generate code from proto files for all apps
+- Individual app proto generation:
+  - Server: `cd apps/server && npm run generate:proto`
+  - Nuxt: `cd apps/web-nuxt && npm run generate:proto`
+  - Svelte: `cd apps/web-svelte && npm run generate:proto`
+
+### Running Individual Services
+- Go server: `cd apps/server && go run ./cmd/server/main.go` (runs on localhost:8080)
+- Svelte app: `cd apps/web-svelte && pnpm dev` (runs on localhost:3000)
+- Nuxt app: `cd apps/web-nuxt && pnpm dev` (runs on localhost:3001)
+
 ## Architecture Overview
 
-This is a gRPC/Connect-RPC monorepo that implements a simple greeting service with multiple frontend clients.
+This is a monorepo using pnpm workspaces and Turborepo for a gRPC/Connect-RPC application with:
 
-### Core Components:
-- **Go gRPC Server** (`apps/server/`): Serves the GreetService using Connect-RPC on port 8080
-- **Nuxt Web Client** (`apps/web-nuxt/`): Vue-based frontend using Connect-RPC web client
-- **SvelteKit Web Client** (`apps/web-svelte/`): Svelte-based frontend using Connect-RPC web client
-- **Proto Definitions** (`packages/proto/`): Shared protobuf definitions for the greet service
+### Core Components
+1. **Protocol Buffers** (`packages/proto/greet/v1/greet.proto`)
+   - Defines the `GreetService` with a single `Greet` RPC method
+   - Shared contract between server and clients
 
-## Development Commands
+2. **Go Server** (`apps/server/`)
+   - Connect-RPC server implementing the GreetService
+   - Uses HTTP/2 with h2c for gRPC-Web compatibility
+   - CORS configured for localhost:3000 and localhost:3001
 
-### Root-level commands (run from project root):
-```bash
-pnpm install          # Install all dependencies
-pnpm dev             # Start all services in development mode
-pnpm build           # Build all packages
-pnpm lint            # Run linting across all packages
-pnpm generate:proto  # Generate protobuf code for all packages
-pnpm check-types     # Run type checking
-```
+3. **Web Clients**
+   - **Nuxt** (`apps/web-nuxt/`) - Vue-based SSR app using Connect-RPC client
+   - **Svelte** (`apps/web-svelte/`) - SvelteKit SSR app using Connect-RPC client
+   - Both use server-side rendering to make gRPC calls via Connect-RPC's Node transport
 
-### Go Server (`apps/server/`):
-```bash
-go run ./cmd/server/main.go  # Start the server
-buf generate ../../packages/proto --template buf.gen.yaml  # Generate Go protobuf code
-```
+### Code Generation Flow
+1. Proto files in `packages/proto/` are the source of truth
+2. Each app has its own `buf.gen.yaml` configuration
+3. Generated code:
+   - Go: `apps/server/gen/` (uses protoc-gen-go and protoc-gen-connect-go)
+   - TypeScript: `apps/web-*/src/gen/` or `shared/gen/` (uses protoc-gen-es)
 
-### Web Clients:
-- Both Nuxt and Svelte apps run on different ports in development
-- They connect to the Go server at `http://localhost:8080`
-- Each has its own `buf.gen.yaml` for generating TypeScript protobuf code
-
-## Protocol Buffers
-
-The service is defined in `packages/proto/greet/v1/greet.proto`:
-- Service: `GreetService` with a single `Greet` RPC
-- Request: `GreetRequest` with a `name` field
-- Response: `GreetResponse` with a `greeting` field
-
-Each app has its own `buf.gen.yaml` configuration to generate language-specific code from the proto files.
-
-## Required Tools
-
-Install these tools before development:
-```bash
-go install github.com/bufbuild/buf/cmd/buf@latest
-go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
-```
-
-## Build System
-
-This project uses:
-- **Turborepo** for monorepo task orchestration
-- **pnpm** (v9.0.0) as the package manager
-- **Node.js** (>=18) required
-
-The `turbo.json` defines the task pipeline with proper dependencies and caching.
+### Key Dependencies
+- **Go**: Requires buf, grpcurl, protoc-gen-go, and protoc-gen-connect-go installed
+- **Node**: Uses pnpm as package manager (v10.13.1)
+- **Turborepo**: Orchestrates builds and development across all packages
